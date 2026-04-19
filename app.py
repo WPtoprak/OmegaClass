@@ -1450,7 +1450,7 @@ def page_teacher() -> None:
 
         ak_logs = pd.read_sql("""
             SELECT al.id, al.log_date tarih, s.name ders, o.code kazanim,
-                   o.text kazanim_metin, al.notes not
+                   o.text kazanim_metin, al.notes notlar
             FROM   academic_logs al
             JOIN   subjects s ON s.id = al.subject_id
             JOIN   outcomes  o ON o.id = al.outcome_id
