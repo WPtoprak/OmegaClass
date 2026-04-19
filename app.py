@@ -1460,7 +1460,7 @@ def page_teacher() -> None:
 
         so_logs = pd.read_sql("""
             SELECT sl.id, sl.log_date tarih, ss.dimension boyut,
-                   ss.text semptom, sl.intensity yogunluk, sl.notes not
+                   ss.text semptom, sl.intensity yogunluk, sl.notes notlar
             FROM   social_logs sl
             JOIN   social_symptoms ss ON ss.id = sl.symptom_id
             WHERE  sl.student_id=? AND sl.teacher_id=?
