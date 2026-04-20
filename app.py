@@ -365,7 +365,7 @@ def page_teacher() -> None:
             if not ak_logs.empty:
                 st.dataframe(ak_logs, hide_index=True)
                 del_ak = st.number_input("Silinecek Log ID", 0, step=1, key="t_dakid")
-                if st.button("🗑️ Sil"):
+                if st.button("🗑️ Sil", key="btn_del_ak"):
                     db.execute("DELETE FROM academic_logs WHERE id=? AND teacher_id=?", (int(del_ak), tid))
                     db.commit(); st.rerun()
 
@@ -484,7 +484,5 @@ else:
     sidebar()
     if st.session_state.user["role"] == "admin":
         page_admin()
-    else:
-        page_teacher()
     else:
         page_teacher()
