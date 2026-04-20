@@ -1449,11 +1449,11 @@ def page_teacher() -> None:
         sel_sid   = int(sts[sts["name"] == sel_st]["id"].values[0])
         sel_grade = sts[sts["name"] == sel_st]["grade"].values[0]
 
-        # --- BURADAN KOPYALA ---
+       # --- BURADAN KOPYALA ---
         ak_logs = pd.read_sql("""
             SELECT al.id, al.log_date tarih, s.name ders, o.code kazanim,
                    o.text kazanim_metin, al.notes notlar,
-                   (SELECT GROUP_CONCAT(sym.name, ', ') FROM log_symptoms ls JOIN academic_symptoms sym ON ls.symptom_id = sym.id WHERE ls.log_id = al.id) as symptom_texts
+                   'Belirtilmedi' as symptom_texts
             FROM   academic_logs al
             JOIN   subjects s ON s.id = al.subject_id
             JOIN   outcomes  o ON o.id = al.outcome_id
@@ -1463,19 +1463,33 @@ def page_teacher() -> None:
 
         so_logs = pd.read_sql("""
             SELECT sl.id, sl.log_date tarih, ss.dimension boyut,
-                   sl.notes notlar,
-                   (SELECT GROUP_CONCAT(sym.name, ', ') FROM log_social_symptoms lss JOIN social_symptoms sym ON lss.symptom_id = sym.id WHERE lss.log_id = sl.id) as symptom_texts
+                   ss.text semptom, sl.intensity yogunluk, sl.notes notlar,
+                   ss.text as symptom_texts
             FROM   social_logs sl
-            JOIN   social_dimensions ss ON ss.id = sl.dimension_id
+            JOIN   social_symptoms ss ON ss.id = sl.symptom_id
             WHERE  sl.student_id=? AND sl.teacher_id=?
             ORDER  BY sl.log_date DESC
         """, db, params=(sel_sid, tid))
 
+        m1, m2 = st.columns(2)
+        m1.metric("Akademik Kayıt", len(ak_logs))
+        m2.metric("Sosyal Kayıt",   len(so_logs))
+
+        # PedagogyEngine (Yeni Beyin)
         st.markdown("---")
         if st.button("🧠 Derin Pedagojik Analiz Raporu Oluştur", type="primary", use_container_width=True):
             with st.spinner("OmegaClass Motoru (Sweller, Vygotsky, Bandura) çalışıyor..."):
-                rapor_markdown = YeniBeyin().generate_report(ak_logs, so_logs)
-                st.markdown(rapor_markdown)
+                try:
+                    engine = YeniBeyin(
+                        student_name=sel_st, 
+                        grade=sel_grade, 
+                        academic_logs=ak_logs, 
+                        social_logs=so_logs
+                    )
+                    rapor_markdown = engine.generate_report()
+                    st.markdown(rapor_markdown, unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"Yapay Zeka Motorunda Bir Sorun Çıktı: {e}")
         # --- BURAYA KADAR KOPYALA ---
 
         # Log görüntüle / sil
