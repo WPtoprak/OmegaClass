@@ -15,6 +15,7 @@ from pathlib import Path
 # ── third-party ─────────────────────────────────────────────
 import streamlit as st
 import pandas as pd
+from pedagogy_engine import PedagogyEngine as YeniBeyin
 
 # ════════════════════════════════════════════════════════════
 #  BULUT-UYUMLU VERİTABANI YOLU
